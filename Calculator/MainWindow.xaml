@@ -7,8 +7,8 @@
         mc:Ignorable="d"
         Title="Calculator" Height="620" Width="410" ResizeMode="NoResize" Icon="/Icon.png" Background="White" FocusManager.FocusedElement="{Binding ElementName=TextScreen}" PreviewKeyDown="WindowPreviewKeyDown">
     <Grid Background="Black" HorizontalAlignment="Center" Width="400" Height="590" VerticalAlignment="Center">
-        <TextBox x:Name="TextScreen" HorizontalAlignment="Left" Height="70" Margin="20,20,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="360" FontSize="48" Background="#FFB4A8D1" FontWeight="Bold" TextAlignment="Right" MaxLines="1" MaxLength="16" Padding="0,2,10,0" PreviewTextInput="NumberValidation"/>
-        <Button x:Name="ButtonFloat" Content="," HorizontalAlignment="Left" Height="75" Margin="20,495,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonFloat_Click"/>
+        <TextBox x:Name="TextScreen" HorizontalAlignment="Left" Height="70" Margin="20,20,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="360" FontSize="48" Background="#FFB4A8D1" FontWeight="Bold" TextAlignment="Right" MaxLines="1" MaxLength="16" Padding="0,2,10,0" PreviewTextInput="NumberValidation" Text="{Binding Path=Display, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" CaretBrush="Transparent"/>
+        <Button x:Name="ButtonDot" Content="," HorizontalAlignment="Left" Height="75" Margin="20,495,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonDot_Click"/>
         <Button x:Name="ButtonZero" Content="0" HorizontalAlignment="Left" Height="75" Margin="110,495,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonZero_Click"/>
         <Button x:Name="ButtonEquals" Content="=" HorizontalAlignment="Left" Height="75" Margin="200,495,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonEquals_Click"/>
         <Button x:Name="ButtonDivide" Content="/" HorizontalAlignment="Left" Height="75" Margin="305,495,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonDivide_Click"/>
@@ -20,14 +20,13 @@
         <Button x:Name="ButtonFive" Content="5" HorizontalAlignment="Left" Height="75" Margin="110,315,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonFive_Click"/>
         <Button x:Name="ButtonSix" Content="6" HorizontalAlignment="Left" Height="75" Margin="200,315,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonSix_Click"/>
         <Button x:Name="ButtonMinus" Content="-" HorizontalAlignment="Left" Height="75" Margin="305,315,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonMinus_Click"/>
-        <Button x:Name="ButtonSeven" Content="7" HorizontalAlignment="Left" Height="75" Margin="20,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonSeven_Click"/>
-        <Button x:Name="ButtonEight" Content="8" HorizontalAlignment="Left" Height="75" Margin="110,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonEight_Click"/>
-        <Button x:Name="ButtonNine" Content="9" HorizontalAlignment="Left" Height="75" Margin="200,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonNine_Click"/>
-        <Button x:Name="ButtonPlus" Content="+" HorizontalAlignment="Left" Height="75" Margin="305,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonPlus_Click"/>
-        <Button x:Name="ButtonClear" Content="C" HorizontalAlignment="Left" Height="75" Margin="20,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonClear_Click"/>
-        <Button x:Name="ButtonSign" Content="+/-" HorizontalAlignment="Left" Height="75" Margin="110,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Foreground="Black" Background="#FFB4A8D1" Click="ButtonSign_Click"/>
-        <Button x:Name="ButtonSquare" Content="x²" HorizontalAlignment="Left" Height="75" Margin="200,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonSquare_Click"/>
-        <Button x:Name="ButtonBackspace" Content="⌫" HorizontalAlignment="Left" Height="75" Margin="305,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Foreground="Black" Click="ButtonBackspace_Click"/>
-
+        <Button x:Name="ButtonSeven" Content="7" HorizontalAlignment="Left" Height="75" Margin="20,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonSeven_Click"/>
+        <Button x:Name="ButtonEight" Content="8" HorizontalAlignment="Left" Height="75" Margin="110,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonEight_Click"/>
+        <Button x:Name="ButtonNine" Content="9" HorizontalAlignment="Left" Height="75" Margin="200,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonNine_Click"/>
+        <Button x:Name="ButtonPlus" Content="+" HorizontalAlignment="Left" Height="75" Margin="305,225,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonPlus_Click"/>
+        <Button x:Name="ButtonClear" Content="C" HorizontalAlignment="Left" Height="75" Margin="20,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonClear_Click"/>
+        <Button x:Name="ButtonSign" Content="+/-" HorizontalAlignment="Left" Height="75" Margin="110,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonSign_Click"/>
+        <Button x:Name="ButtonSquare" Content="x²" HorizontalAlignment="Left" Height="75" Margin="200,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonSquare_Click"/>
+        <Button x:Name="ButtonBackspace" Content="⌫" HorizontalAlignment="Left" Height="75" Margin="305,120,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonBackspace_Click"/>
     </Grid>
 </Window>

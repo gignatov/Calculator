@@ -1,271 +1,334 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
 namespace Calculator
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public MainWindow()
         {
             InitializeComponent();
             TextScreen.CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, DisablePaste));
+            this.DataContext = this;
         }
-        private double? firstInputNumber = null;
-        private double? secondInputNumber = null;
-        private int op = 0;
-        private bool hasDot = false;
-        private bool usedEquals = false;
+        private string display = "";
+        private double? firstNum = null;
+        private bool usedOperator = false;
+        private int operationNum = 0;
+        public string Display 
+        {
+            get { return display; } 
+            set 
+            { 
+                display = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("Display"));
+            } 
+        }
+        public double? FirstNum 
+        { 
+            get { return firstNum; } 
+            set { firstNum = value; } 
+        }
+        public bool UsedOperator
+        {
+            get { return usedOperator; }
+            set { usedOperator = value; }
+        }
+        public int OperationNum
+        {
+            get { return operationNum; }
+            set { operationNum = value; }
+        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void Format()
+        {
+            Validator.ChangeFontSize(TextScreen);
+            Validator.SetFocus(TextScreen);
+        }
         private void DisablePaste(object sender, ExecutedRoutedEventArgs e)
         {
             e.Handled = true;
         }
-
         private void NumberValidation(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
-            ChangeFontSize();
-        }
-        private void ChangeFontSize()
-        {
-            if (TextScreen.Text.Length <= 12)
-                TextScreen.FontSize = 48;
-            if (TextScreen.Text.Length > 12 && TextScreen.Text.Length <= 17)
-                TextScreen.FontSize = 34;
-            if (TextScreen.Text.Length > 17)
-                TextScreen.FontSize = 24;
-        }
-        private void InsertTextScreenElement(char input)
-        {
-            if ((TextScreen.Text.Length == 1 && TextScreen.Text[0] == '0' ) || usedEquals)
-                TextScreen.Text = null;
-            if (TextScreen.Text.Length < 17)
-                TextScreen.Text = (TextScreen.Text + input);
-            ChangeFontSize();
-            TextScreen.Focus();
-            TextScreen.Select(TextScreen.Text.Length, 0);
-            usedEquals = false;
-        }
-        private double? DoOperation(int op, double? firstNum, double? secondNum)
-        {
-            switch (op)
-            {
-                case 0:
-                    return (firstNum);
-                case 1:
-                    return (firstNum + secondNum);
-                case 2:
-                    return (firstNum - secondNum);
-                case 3:
-                    return (firstNum * secondNum);
-                case 4:
-                    return (firstNum / secondNum);
-                default: throw new Exception ("Invalid operator!");
-            }
+            Format();
         }
         private void WindowPreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.OemPlus || e.Key == Key.Add)
-                CheckInputs(1);
+            {
+                FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+                Display = FirstNum.ToString();
+                OperationNum = 1;
+                UsedOperator = true;
+                Format();
+            }
             if (e.Key == Key.OemMinus || e.Key == Key.Subtract)
-                CheckInputs(2);
+            {
+                FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+                Display = FirstNum.ToString();
+                OperationNum = 2;
+                UsedOperator = true;
+                Format();
+            }
             if (e.Key == Key.Multiply)
-                CheckInputs(3);
+            {
+                FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+                Display = FirstNum.ToString();
+                OperationNum = 3;
+                UsedOperator = true;
+                Format();
+            }
             if (e.Key == Key.Divide)
-                CheckInputs(4);
+            {
+                FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+                Display = FirstNum.ToString();
+                OperationNum = 4;
+                UsedOperator = true;
+                Format();
+            }
             if (e.Key == Key.Return)
-                Equals();
+            {
+                FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+                Display = FirstNum.ToString();
+                FirstNum = null;
+                OperationNum = 0;
+                UsedOperator = true;
+                Format();
+            }
             if (e.Key == Key.OemComma || e.Key == Key.OemPeriod || e.Key == Key.Decimal)
-                Float();
+            {
+                Display = ButtonOperations.AddDot(Display, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
             if (e.Key == Key.C || e.Key == Key.Delete)
-                Clear();
+            {
+                Display = "";
+                FirstNum = null;
+                UsedOperator = false;
+                Format();
+            }
             if (e.Key == Key.Z)
-                ChangeSign();
+            {
+                Display = ButtonOperations.ChangeSign(Display);
+                Format();
+            }
             if (e.Key == Key.X)
-                Square();
-        }
-        private void CheckInputs(int oper)
-        {
-            if (TextScreen.Text.Length > 0)
             {
-                if (firstInputNumber == null && secondInputNumber == null)
-                {
-                    firstInputNumber = Convert.ToDouble(TextScreen.Text);
-                    TextScreen.Text = null;
-                    op = oper;
-                }
-                else if (firstInputNumber != null && secondInputNumber == null)
-                {
-                    secondInputNumber = Convert.ToDouble(TextScreen.Text);
-                    firstInputNumber = DoOperation(op, firstInputNumber, secondInputNumber);
-                    secondInputNumber = null;
-                    TextScreen.Text = null;
-                    op = oper;
-                }
-                hasDot = false;
+                FirstNum = Validator.CheckOperation(5, Display, FirstNum, UsedOperator);
+                Display = FirstNum.ToString();
+                UsedOperator = false;
+                Format();
             }
-            TextScreen.Focus();
-        }
-        private void Equals()
-        {
-            if (TextScreen.Text.Length != 0)
-                CheckInputs(op);
-            TextScreen.Text = firstInputNumber.ToString();
-            firstInputNumber = null;
-            op = 0;
-            TextScreen.Focus();
-            TextScreen.Select(TextScreen.Text.Length, 0);
-            usedEquals = true;
-            ChangeFontSize();
-        }
-        private void Float()
-        {
-            if (!hasDot)
+            if (e.Key == Key.Back)
             {
-                InsertTextScreenElement(',');
-                if (TextScreen.Text.Length == 1 && TextScreen.Text[0] == ',')
-                    TextScreen.Text = TextScreen.Text.Insert(0, "0");
-                hasDot = true;
-                TextScreen.Focus();
-                TextScreen.Select(TextScreen.Text.Length, 0);
+                if (!UsedOperator)
+                    Display = ButtonOperations.Backspace(Display, TextScreen);
+                Format();
             }
-        }
-        private void Clear()
-        {
-            firstInputNumber = null;
-            TextScreen.Text = null;
-            TextScreen.Focus();
-            hasDot = false;
-        }
-        private void ChangeSign()
-        {
-            if (TextScreen.Text.Length > 0 && Convert.ToDouble(TextScreen.Text) != 0)
+            if (e.Key == Key.D0 || e.Key == Key.NumPad0)
             {
-                if (TextScreen.Text[0] == '-')
-                    TextScreen.Text = TextScreen.Text.Remove(0, 1);
-                else TextScreen.Text = '-' + TextScreen.Text;
+                if (Validator.ZeroIsValid(Display))
+                    Display = Validator.InsertElement(Display, null, UsedOperator);
+                else
+                    Display = ButtonOperations.Backspace(Display, TextScreen);
+                UsedOperator = false;
+                Format();
             }
-            TextScreen.Focus();
-            TextScreen.Select(TextScreen.Text.Length, 0);
-        }
-        private void Square()
-        {
-            if (TextScreen.Text.Length > 0)
+            if (e.Key == Key.D1 || e.Key == Key.NumPad1)
             {
-                TextScreen.Text = (Convert.ToDouble(TextScreen.Text) * Convert.ToDouble(TextScreen.Text)).ToString();
-                ChangeFontSize();
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
             }
-            TextScreen.Focus();
-            TextScreen.Select(TextScreen.Text.Length, 0);
-        }
+            if (e.Key == Key.D2 || e.Key == Key.NumPad2)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D3 || e.Key == Key.NumPad3)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D4 || e.Key == Key.NumPad4)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D5 || e.Key == Key.NumPad5)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D6 || e.Key == Key.NumPad6)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D7 || e.Key == Key.NumPad7)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D8 || e.Key == Key.NumPad8)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+            if (e.Key == Key.D9 || e.Key == Key.NumPad9)
+            {
+                Display = Validator.InsertElement(Display, null, UsedOperator);
+                UsedOperator = false;
+                Format();
+            }
+        }      
         private void ButtonZero_Click(object sender, RoutedEventArgs e)
         {
-            if (TextScreen.Text.Length == 0)
-                InsertTextScreenElement('0');
-            else if (TextScreen.Text.Length > 1 && TextScreen.Text[0] == '0' && TextScreen.Text[1] == ',')
-                InsertTextScreenElement('0');
-            else if (TextScreen.Text[0] != '0')
-                InsertTextScreenElement('0');
-            TextScreen.Focus();
-            TextScreen.Select(TextScreen.Text.Length, 0);
+            if (Validator.ZeroIsValid(Display))
+                Display = Validator.InsertElement(Display, '0', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
         private void ButtonOne_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('1');
+            Display = Validator.InsertElement(Display, '1', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonTwo_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('2');
+            Display = Validator.InsertElement(Display, '2', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonThree_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('3');
+            Display = Validator.InsertElement(Display, '3', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonFour_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('4');
+            Display = Validator.InsertElement(Display, '4', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonFive_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('5');
+            Display = Validator.InsertElement(Display, '5', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonSix_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('6');
+            Display = Validator.InsertElement(Display, '6', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonSeven_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('7');
+            Display = Validator.InsertElement(Display, '7', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonEight_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('8');
+            Display = Validator.InsertElement(Display, '8', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonNine_Click(object sender, RoutedEventArgs e)
         {
-            InsertTextScreenElement('9');
+            Display = Validator.InsertElement(Display, '9', UsedOperator);
+            UsedOperator = false;
+            Format();
         }
-
         private void ButtonClear_Click(object sender, RoutedEventArgs e)
         {
-            Clear();
+            Display = "";
+            FirstNum = null;
+            UsedOperator = false;
+            Format();
         }
         private void ButtonBackspace_Click(object sender, RoutedEventArgs e)
         {
-            if (TextScreen.Text.Length > 0 && TextScreen.SelectionStart > 0)
-            {
-                int pos = TextScreen.SelectionStart;
-                TextScreen.Text = TextScreen.Text.Remove(TextScreen.SelectionStart - 1, 1);
-                TextScreen.Select(pos - 1, 0);
-            }
-            TextScreen.Focus();
+            if (!UsedOperator)
+                Display = ButtonOperations.Backspace(Display, TextScreen);
+            Format();
         }
-
         private void ButtonPlus_Click(object sender, RoutedEventArgs e)
         {
-            CheckInputs(1);
+            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+            Display = FirstNum.ToString();
+            OperationNum = 1;
+            UsedOperator = true;
+            Format();
         }
-
         private void ButtonMinus_Click(object sender, RoutedEventArgs e)
         {
-            CheckInputs(2);
+            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+            Display = FirstNum.ToString();
+            OperationNum = 2;
+            UsedOperator = true;
+            Format();
         }
-
         private void ButtonMultiply_Click(object sender, RoutedEventArgs e)
         {
-            CheckInputs(3);
+            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+            Display = FirstNum.ToString();
+            OperationNum = 3;
+            UsedOperator = true;
+            Format();
         }
-
         private void ButtonDivide_Click(object sender, RoutedEventArgs e)
         {
-            CheckInputs(4);
+            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+            Display = FirstNum.ToString();
+            UsedOperator = true;
+            OperationNum = 4;
+            Format();
         }
         private void ButtonEquals_Click(object sender, RoutedEventArgs e)
         {
-            Equals();
+            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+            Display = FirstNum.ToString();
+            OperationNum = 0;
+            FirstNum = null;
+            UsedOperator = true;
+            Format();
         }
-        private void ButtonFloat_Click(object sender, RoutedEventArgs e)
+        private void ButtonDot_Click(object sender, RoutedEventArgs e)
         {
-            Float();
+            Display = ButtonOperations.AddDot(Display, UsedOperator);
+            UsedOperator = false;
+            Format();
         }
         private void ButtonSign_Click(object sender, RoutedEventArgs e)
         {
-            ChangeSign();
+            Display = ButtonOperations.ChangeSign(Display);
+            Format();
         }
-
         private void ButtonSquare_Click(object sender, RoutedEventArgs e)
         {
-            Square();
+            FirstNum = Validator.CheckOperation(5, Display, FirstNum, UsedOperator);
+            Display = FirstNum.ToString();
+            UsedOperator = true;
+            Format();
         }
     }
 }
