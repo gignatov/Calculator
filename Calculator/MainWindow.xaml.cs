@@ -61,6 +61,8 @@ namespace Calculator
         }
         private void WindowPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            e.Handled = e.Key == Key.Space;
+            e.Handled = e.Key == Key.Back;
             if (e.Key == Key.OemPlus || e.Key == Key.Add)
             {
                 FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
