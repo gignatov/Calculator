@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Calculator"
         mc:Ignorable="d"
-        Title="Calculator" Height="620" Width="410" ResizeMode="NoResize" Icon="/Icon.png" Background="White" FocusManager.FocusedElement="{Binding ElementName=TextScreen}" PreviewKeyDown="WindowPreviewKeyDown">
+        Title="Calculator" Height="620" Width="410" ResizeMode="NoResize" Background="White" FocusManager.FocusedElement="{Binding ElementName=TextScreen}" PreviewKeyDown="WindowPreviewKeyDown">
     <Grid Background="Black" HorizontalAlignment="Center" Width="400" Height="590" VerticalAlignment="Center">
         <TextBox x:Name="TextScreen" HorizontalAlignment="Left" Height="70" Margin="20,20,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="360" FontSize="48" Background="#FFB4A8D1" FontWeight="Bold" TextAlignment="Right" MaxLines="1" MaxLength="16" Padding="0,2,10,0" PreviewTextInput="NumberValidation" Text="{Binding Path=Display, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" CaretBrush="Transparent"/>
         <Button x:Name="ButtonDot" Content="," HorizontalAlignment="Left" Height="75" Margin="20,495,0,0" VerticalAlignment="Top" Width="75" FontSize="36" FontWeight="Bold" Background="#FFB4A8D1" Click="ButtonDot_Click"/>
