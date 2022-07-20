@@ -15,7 +15,8 @@ namespace Calculator
         }
         private string display = "0";
         private double? firstNum = null;
-        private bool usedOperator = false;
+        private bool usedPrimaryOperator = false;
+        private bool usedSecondaryOperator = false;
         private int operationNum = 0;
         private string memory = "0";
         private bool usedMemory = false;
@@ -34,10 +35,15 @@ namespace Calculator
             get { return firstNum; } 
             set { firstNum = value; } 
         }
-        public bool UsedOperator
+        public bool UsedPrimaryOperator
         {
-            get { return usedOperator; }
-            set { usedOperator = value; }
+            get { return usedPrimaryOperator; }
+            set { usedPrimaryOperator = value; }
+        }
+        public bool UsedSecondaryOperator
+        {
+            get { return usedSecondaryOperator; }
+            set { usedSecondaryOperator = value; }
         }
         public int OperationNum
         {
@@ -62,17 +68,18 @@ namespace Calculator
         }
         private void InsertNumber(char ch)
         {
-            Display = Validator.InsertElement(Display, ch, UsedOperator, UsedMemory);
-            UsedOperator = false;
+            Display = Validator.InsertElement(Display, ch, UsedPrimaryOperator, UsedSecondaryOperator, UsedMemory);
+            UsedPrimaryOperator = false;
+            UsedSecondaryOperator = false;
             UsedMemory = false;
             Format();
         }
         private void ExecuteOperation(int op)
         {
-            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
+            FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedPrimaryOperator);
             Display = FirstNum.ToString();
             OperationNum = op;
-            UsedOperator = true;
+            UsedPrimaryOperator = true;
             Format();
         }
         private void WindowPreviewKeyDown(object sender, KeyEventArgs e)
@@ -101,8 +108,8 @@ namespace Calculator
             }
             if (e.Key == Key.OemComma || e.Key == Key.OemPeriod || e.Key == Key.Decimal)
             {
-                Display = ButtonOperations.AddDot(Display, UsedOperator, UsedMemory);
-                UsedOperator = false;
+                Display = ButtonOperations.AddDot(Display, UsedPrimaryOperator, UsedSecondaryOperator, UsedMemory);
+                UsedPrimaryOperator = false;
                 UsedMemory = false;
                 Format();
             }
@@ -111,7 +118,8 @@ namespace Calculator
                 Display = "0";
                 FirstNum = null;
                 OperationNum = 0;
-                UsedOperator = false;
+                UsedPrimaryOperator = false;
+                UsedSecondaryOperator = false;
                 UsedMemory = false;
                 Format();
             }
@@ -122,14 +130,13 @@ namespace Calculator
             }
             if (e.Key == Key.X)
             {
-                FirstNum = Validator.CheckOperation(5, Display, FirstNum, UsedOperator);
-                Display = FirstNum.ToString();
-                UsedOperator = true;
+                Display = Validator.CheckOperation(5, Display, FirstNum, UsedPrimaryOperator).ToString();
+                UsedSecondaryOperator = true;
                 Format();
             }
             if (e.Key == Key.Back)
             {
-                if (!UsedOperator || !UsedMemory)
+                if (!UsedPrimaryOperator || !UsedMemory || !UsedSecondaryOperator)
                     Display = ButtonOperations.Backspace(Display, TextScreen);
                 Format();
             }
@@ -221,13 +228,14 @@ namespace Calculator
             Display = "0";
             FirstNum = null;
             OperationNum = 0;
-            UsedOperator = false;
+            UsedPrimaryOperator = false;
+            UsedSecondaryOperator = false;
             UsedMemory = false;
             Format();
         }
         private void ButtonBackspace_Click(object sender, RoutedEventArgs e)
         {
-            if (!UsedOperator || !UsedMemory)
+            if (!UsedPrimaryOperator || !UsedMemory || !UsedSecondaryOperator)
                 Display = ButtonOperations.Backspace(Display, TextScreen);
             Format();
         }
@@ -254,8 +262,8 @@ namespace Calculator
         }
         private void ButtonDot_Click(object sender, RoutedEventArgs e)
         {
-            Display = ButtonOperations.AddDot(Display, UsedOperator, UsedMemory);
-            UsedOperator = false;
+            Display = ButtonOperations.AddDot(Display, UsedPrimaryOperator, UsedSecondaryOperator, UsedMemory);
+            UsedPrimaryOperator = false;
             Format();
         }
         private void ButtonSign_Click(object sender, RoutedEventArgs e)
@@ -265,9 +273,8 @@ namespace Calculator
         }
         private void ButtonSquare_Click(object sender, RoutedEventArgs e)
         {
-            FirstNum = Validator.CheckOperation(5, Display, FirstNum, UsedOperator);
-            Display = FirstNum.ToString();
-            UsedOperator = true;
+            Display = Validator.CheckOperation(5, Display, FirstNum, UsedPrimaryOperator).ToString();
+            UsedSecondaryOperator = true;
             Format();
         }
 
@@ -281,7 +288,8 @@ namespace Calculator
         {
             Display = MemoryOperations.MemoryRecall(Memory);
             UsedMemory = true;
-            UsedOperator = false;
+            UsedPrimaryOperator = false;
+            UsedSecondaryOperator = false;
         }
 
         private void ButtonMemoryAdd_Click(object sender, RoutedEventArgs e)
@@ -310,33 +318,30 @@ namespace Calculator
 
         private void ButtonReciprocal_Click(object sender, RoutedEventArgs e)
         {
-            FirstNum = Validator.CheckOperation(6, Display, FirstNum, UsedOperator);
-            Display = FirstNum.ToString();
-            UsedOperator = true;
+            Display = Validator.CheckOperation(6, Display, FirstNum, UsedPrimaryOperator).ToString();
+            UsedSecondaryOperator = true;
             Format();
         }
 
         private void ButtonSquareRoot_Click(object sender, RoutedEventArgs e)
         {
-            FirstNum = Validator.CheckOperation(7, Display, FirstNum, UsedOperator);
-            Display = FirstNum.ToString();
-            UsedOperator = true;
+            Display = Validator.CheckOperation(7, Display, FirstNum, UsedPrimaryOperator).ToString();
+            UsedSecondaryOperator = true;
             Format();
         }
 
         private void ButtonPercent_Click(object sender, RoutedEventArgs e)
         {
             if (OperationNum == 1)
-                FirstNum += Validator.CheckOperation(8, Display, FirstNum, UsedOperator);
+                Display = Validator.CheckOperation(8, Display, FirstNum, UsedPrimaryOperator).ToString();
             else if (OperationNum == 2)
-                FirstNum -= Validator.CheckOperation(8, Display, FirstNum, UsedOperator);
+                Display = (FirstNum - Validator.CheckOperation(8, Display, FirstNum, UsedPrimaryOperator)).ToString();
             else if (OperationNum == 3)
-                FirstNum *= Validator.CheckOperation(8, Display, FirstNum, UsedOperator);
+                Display = (FirstNum * Validator.CheckOperation(8, Display, FirstNum, UsedPrimaryOperator)).ToString();
             else if (OperationNum == 4)
-                FirstNum /= Validator.CheckOperation(8, Display, FirstNum, UsedOperator);
-            else FirstNum = Validator.CheckOperation(8, Display, FirstNum, UsedOperator);
-            Display = FirstNum.ToString();
-            UsedOperator = true;
+                Display = (FirstNum / Validator.CheckOperation(8, Display, FirstNum, UsedPrimaryOperator)).ToString();
+            else Display = Validator.CheckOperation(8, Display, FirstNum, UsedPrimaryOperator).ToString();
+            UsedSecondaryOperator = true;
             Format();
         }
     }
