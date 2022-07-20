@@ -11,13 +11,13 @@ namespace Calculator
         public MainWindow()
         {
             InitializeComponent();
-            TextScreen.CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, DisablePaste));
             this.DataContext = this;
         }
         private string display = "";
         private double? firstNum = null;
         private bool usedOperator = false;
         private int operationNum = 0;
+        private string memory = "0";
         public string Display 
         {
             get { return display; } 
@@ -43,32 +43,20 @@ namespace Calculator
             get { return operationNum; }
             set { operationNum = value; }
         }
+        public string Memory
+        {
+            get { return memory; }
+            set { memory = value; }
+        }
         public event PropertyChangedEventHandler? PropertyChanged;
         private void Format()
         {
-            Validator.ChangeFontSize(TextScreen);
-            Validator.SetFocus(TextScreen);
-        }
-        private void DisablePaste(object sender, ExecutedRoutedEventArgs e)
-        {
-            e.Handled = true;
-        }
-        private void NumberValidation(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("[^0-9]+");
-            e.Handled = regex.IsMatch(e.Text);
-            Format();
+            Formatting.AddSpacing(TextScreen);
+            Formatting.ChangeFontSize(TextScreen);
         }
         private void WindowPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Space)
-            {
-                e.Handled = e.Key == Key.Space;
-            }
-            if (e.Key == Key.Back)
-            {
-                e.Handled = e.Key == Key.Back;
-            }
+            e.Handled = true;
             if (e.Key == Key.OemPlus || e.Key == Key.Add)
             {
                 FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
@@ -93,7 +81,7 @@ namespace Calculator
                 UsedOperator = true;
                 Format();
             }
-            if (e.Key == Key.Divide)
+            if (e.Key == Key.Divide || e.Key == Key.OemQuestion)
             {
                 FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedOperator);
                 Display = FirstNum.ToString();
@@ -144,7 +132,7 @@ namespace Calculator
             if (e.Key == Key.D0 || e.Key == Key.NumPad0)
             {
                 if (Validator.ZeroIsValid(Display))
-                    Display = Validator.InsertElement(Display, null, UsedOperator);
+                    Display = Validator.InsertElement(Display, '0', UsedOperator);
                 else
                     Display = ButtonOperations.Backspace(Display, TextScreen);
                 UsedOperator = false;
@@ -152,55 +140,55 @@ namespace Calculator
             }
             if (e.Key == Key.D1 || e.Key == Key.NumPad1)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '1', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D2 || e.Key == Key.NumPad2)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '2', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D3 || e.Key == Key.NumPad3)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '3', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D4 || e.Key == Key.NumPad4)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '4', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D5 || e.Key == Key.NumPad5)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '5', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D6 || e.Key == Key.NumPad6)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '6', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D7 || e.Key == Key.NumPad7)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '7', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D8 || e.Key == Key.NumPad8)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '8', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
             if (e.Key == Key.D9 || e.Key == Key.NumPad9)
             {
-                Display = Validator.InsertElement(Display, null, UsedOperator);
+                Display = Validator.InsertElement(Display, '9', UsedOperator);
                 UsedOperator = false;
                 Format();
             }
@@ -270,6 +258,7 @@ namespace Calculator
         {
             Display = "";
             FirstNum = null;
+            Memory = "0";
             UsedOperator = false;
             Format();
         }
@@ -337,6 +326,36 @@ namespace Calculator
             Display = FirstNum.ToString();
             UsedOperator = true;
             Format();
+        }
+
+        private void ButtonMemoryClear_Click(object sender, RoutedEventArgs e)
+        {
+            Memory = MemoryOperations.MemoryClear();
+            UsedOperator = true;
+        }
+
+        private void ButtonMemoryRecall_Click(object sender, RoutedEventArgs e)
+        {
+            Display = MemoryOperations.MemoryRecall(Memory);
+            UsedOperator = true;
+        }
+
+        private void ButtonMemoryAdd_Click(object sender, RoutedEventArgs e)
+        {
+            Memory = MemoryOperations.MemoryAdd(Memory, Display);
+            UsedOperator = true;
+        }
+
+        private void ButtonMemorySubtract_Click(object sender, RoutedEventArgs e)
+        {
+            Memory = MemoryOperations.MemorySubtract(Memory, Display);
+            UsedOperator = true;
+        }
+
+        private void ButtonMemoryStore_Click(object sender, RoutedEventArgs e)
+        {
+            Memory = MemoryOperations.MemoryStore(Display);
+            UsedOperator = true;
         }
     }
 }

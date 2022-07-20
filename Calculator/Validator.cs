@@ -9,21 +9,7 @@ using System.Windows.Input;
 namespace Calculator
 {
     public class Validator
-    {
-        public static void ChangeFontSize(System.Windows.Controls.TextBox box)
-        {
-            if (box.Text.Length < 12)
-                box.FontSize = 48;
-            if (box.Text.Length >= 12 && box.Text.Length <= 17)
-                box.FontSize = 34;
-            if (box.Text.Length > 17)
-                box.FontSize = 24;
-        }
-        public static void SetFocus(System.Windows.Controls.TextBox box)
-        {
-            box.Focus();
-            box.Select(box.Text.Length, 0);
-        }
+    {        
         public static bool ZeroIsValid(string input)
         {
             if (input == "0")
@@ -32,11 +18,8 @@ namespace Calculator
         }
         public static bool HasDot(string input)
         {
-            foreach (char ch in input)
-            {
-                if (ch == ',')
-                    return true;
-            }
+            if (input.Contains(','))
+                return true;
             return false;
         }
         public static string InsertElement(string input, char? ch, bool usedOperator)
@@ -45,27 +28,30 @@ namespace Calculator
             {
                 input = "";
             }
+            input = input.Replace(" ", "");
             if (input.Length == 1 && input[0] == '0' && ch != ',')
                 input = input.Remove(0, 1);
-            if (input.Length < 17)
+            if (input.Length < 16)
                 input += ch;
             return input;
         }
         public static double? CheckOperation(int operationNum, string input, double? firstNum, bool usedOperator)
         {
-            if (input != "")
+            input = input.Replace(" ", "");
+            if (input == "")
+                return null;
+            if (usedOperator == true && operationNum == 5)
+                return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
+            if (usedOperator != true)
             {
-                if (firstNum == null)
-                {
-                    if (operationNum == 5)
-                        input = Operations.DoOperation(operationNum, Convert.ToDouble(input), 0).ToString();
-                    firstNum = Convert.ToDouble(input);
-                }
+                if (operationNum == 5)
+                    return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
+                else if (firstNum == null)
+                    return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
                 else
-                    firstNum = Operations.DoOperation(operationNum, firstNum, Convert.ToDouble(input));
-                return firstNum;
+                    return Operations.DoOperation(operationNum, firstNum, Convert.ToDouble(input));
             }
-            return null;
+            return Convert.ToDouble(input);
         }
     }
 }
