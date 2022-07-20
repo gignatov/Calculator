@@ -8,11 +8,6 @@ namespace Calculator
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-            this.DataContext = this;
-        }
         private string display = "0";
         private double? firstNum = null;
         private bool usedPrimaryOperator = false;
@@ -20,6 +15,12 @@ namespace Calculator
         private int operationNum = 0;
         private string memory = "0";
         private bool usedMemory = false;
+        private string equation = null;
+        public MainWindow()
+        {
+            InitializeComponent();
+            this.DataContext = this;
+        }       
         public string Display 
         {
             get { return display; } 
@@ -60,6 +61,16 @@ namespace Calculator
             get { return usedMemory; }
             set { usedMemory = value; }
         }
+        public string Equation
+        {
+            get { return equation; }
+            set
+            {
+                equation = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("Equation"));
+            }
+        }
         public event PropertyChangedEventHandler? PropertyChanged;
         private void Format()
         {
@@ -77,6 +88,7 @@ namespace Calculator
         private void ExecuteOperation(int op)
         {
             FirstNum = Validator.CheckOperation(OperationNum, Display, FirstNum, UsedPrimaryOperator);
+            Equation = History.TrackEquation(op, Display, Equation, FirstNum, UsedPrimaryOperator);
             Display = FirstNum.ToString();
             OperationNum = op;
             UsedPrimaryOperator = true;
@@ -231,6 +243,7 @@ namespace Calculator
             UsedPrimaryOperator = false;
             UsedSecondaryOperator = false;
             UsedMemory = false;
+            Equation = null;
             Format();
         }
         private void ButtonBackspace_Click(object sender, RoutedEventArgs e)
@@ -274,6 +287,7 @@ namespace Calculator
         private void ButtonSquare_Click(object sender, RoutedEventArgs e)
         {
             Display = Validator.CheckOperation(5, Display, FirstNum, UsedPrimaryOperator).ToString();
+
             UsedSecondaryOperator = true;
             Format();
         }
