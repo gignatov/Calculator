@@ -24,6 +24,19 @@ namespace Calculator
                     return (firstNum / secondNum);
                 case 5:
                     return (firstNum * firstNum);
+                case 6:
+                    return (1 / firstNum);
+                case 7:
+                    if (firstNum > 0)
+                    {
+                        double? root = firstNum / 3;
+                        for (int i = 0; i < 32; i++)
+                            root = (root + firstNum / root) / 2;
+                        return root;
+                    }
+                    return double.NaN;
+                case 8:
+                    return (firstNum * secondNum / 100);
                 default: throw new Exception("Invalid operator!");
             }
         }

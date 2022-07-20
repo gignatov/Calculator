@@ -19,12 +19,12 @@ namespace Calculator
             }
             return input;
         }
-        public static string AddDot(string input, bool usedOperator)
+        public static string AddDot(string input, bool usedOperator, bool usedMemory)
         {
             input = input.Replace(" ", "");
             if (!Validator.HasDot(input))
             {
-                input = Validator.InsertElement(input, ',', usedOperator);
+                input = Validator.InsertElement(input, ',', usedOperator, usedMemory);
                 if (input.Length != 0 && input[0] == ',')
                     input = "0" + input;
             }
@@ -36,6 +36,8 @@ namespace Calculator
             {
                 input = input.Replace(" ", "");
                 input = input.Remove(input.Length - 1, 1);
+                if (input == "")
+                    input = "0";
             }                          
             return input;
         }

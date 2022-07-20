@@ -22,9 +22,9 @@ namespace Calculator
                 return true;
             return false;
         }
-        public static string InsertElement(string input, char? ch, bool usedOperator)
+        public static string InsertElement(string input, char? ch, bool usedOperator, bool usedMemory)
         {
-            if (usedOperator)
+            if (usedOperator || usedMemory)
             {
                 input = "";
             }
@@ -38,16 +38,15 @@ namespace Calculator
         public static double? CheckOperation(int operationNum, string input, double? firstNum, bool usedOperator)
         {
             input = input.Replace(" ", "");
-            if (input == "")
-                return null;
-            if (usedOperator == true && operationNum == 5)
+            if (operationNum == 5 || operationNum == 6 || operationNum == 7)
                 return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
+
             if (usedOperator != true)
             {
-                if (operationNum == 5)
-                    return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
-                else if (firstNum == null)
-                    return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
+                if (firstNum == null)
+                    if (operationNum == 8)
+                        return Convert.ToDouble(input) / 100;
+                    else return Operations.DoOperation(operationNum, Convert.ToDouble(input), 0);
                 else
                     return Operations.DoOperation(operationNum, firstNum, Convert.ToDouble(input));
             }
